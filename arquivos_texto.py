@@ -4,7 +4,10 @@ def registro(registrar, nome='arq01', substituir="sim"):
     else:
         s = 'a'
     with open(f'{nome}.txt', f'{s}') as arquivo:
-        arquivo.write(f'{registrar}\n')
+        if s == 'w':
+            arquivo.write(f'{registrar}')
+        else:
+            arquivo.write(f'{registrar}\n')
         arquivo.close()
 
 
