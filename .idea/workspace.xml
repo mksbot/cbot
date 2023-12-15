@@ -10,9 +10,9 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2ZYIEgz7IxbaCtiQQuWHZ25FKxu" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -22,7 +22,9 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/Administrator/OneDrive/Documentos/GitHub/anime_bot"
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/Administrator/OneDrive/Documentos/GitHub/cbot",
+    "settings.editor.selected.configurable": "vcs.Git"
   }
 }]]></component>
   <component name="RecentsManager">
