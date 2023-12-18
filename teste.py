@@ -1,35 +1,88 @@
-import telebot
-from telebot import types,util
+import requests
+from bs4 import BeautifulSoup
 
-bot = telebot.TeleBot("6812826133:AAHTh_ZzbOSXeKjAedxwpPKJMeuMt6AT-o8")
+from arquivos_texto import abrir_reg, registro
 
-#chat_member_handler. When status changes, telegram gives update. check status from old_chat_member and new_chat_member.
-@bot.chat_member_handler()
-def chat_m(message: types.ChatMemberUpdated):
-    old = message.old_chat_member
-    new = message.new_chat_member
-    if new.status == "member":
-        print(message.chat.id)
-        bot.send_message(message.chat.id,"Hello {name}!".format(name=new.user.first_name)) # Welcome message
+page = 'https://animefire.plus/home/2'
+print(page)
+hesders = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, como Gecko) '
+                      'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51'}
+site = requests.get(page, headers=hesders)
+soup = BeautifulSoup(site.content, 'html.parser')
+magnet2 = soup.find_all('div', class_='row ml-1 mr-1 mr-md-2')
+i = 1
+lista = []
+for v in magnet2[0]:
+    lista2 = []
+    informaçoes = str(v.text).replace('     ', '>')
+    num = informaçoes.find('- E')
+    episodio = informaçoes[num+1:informaçoes.find('>', num)]
+    nome = informaçoes[:num].upper()
+    if 'Dub' in nome or 'DUB' in nome or 'dub' in nome:
+        mau_elementos = (
+            "a,b,c,ç,Ç,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,"
+            "Y,Z,À,Á,Â,Ä,Å,Ã,Æ,Ç,É,È,Ê,Ë,Í,Ì,Î,Ï,Ñ,Ó,Ò,Ô,Ö,Ø,Õ,O,E,Ú,Ù,Û,Ü,Ý,Y à,á,â,ä,å,ã,æ,ç,é,è,ê,ë,í,ì,î,ï,ñ,ó,ò,"
+            "ô,ö,ø,õ,o,e,ú,ù,û,ü,ý,y".replace(',', ' ').split())
+        tag = ''
+        for c in nome:
+            if c not in mau_elementos:
+                if tag == '':
+                    tag = nome.replace(str(c), '_')
+                else:
+                    tag = tag.replace(str(c), '_')
+        idioma = ' #DUB'
+        descriçao = (f'{"_" * (len(nome) + 10)}\n\n'
+                     f'     ✅{nome}\n'
+                     f'{"_" * (len(nome) + 10)}\n\n'
+                     f'#{tag[:24].replace("__", "_")}..\n'
+                     f'🎞{episodio}   |   '
+                     f'🇧🇷{idioma}'
+                     )
+        print(descriçao)
+        try:
+            reg = abrir_reg('animes_dub')
+        except:
+            registro(f'{nome}{episodio}', 'animes_dub', 'nao')
+            reg = abrir_reg('animes_dub')
 
-#if bot is added to group, this handler will work
-@bot.my_chat_member_handler()
-def my_chat_m(message: types.ChatMemberUpdated):
-    old = message.old_chat_member
-    new = message.new_chat_member
-    if new.status == "member":
-        print(message.chat.id)
-        bot.send_message(message.chat.id,"Somebody added me to group") # Welcome message, if bot was added to group
-        bot.leave_chat(message.chat.id)
+        if str(nome + episodio) not in reg:
+            lista2.append(descriçao)
+            print(v)
 
-#content_Type_service is:
-#'new_chat_members', 'left_chat_member', 'new_chat_title', 'new_chat_photo', 'delete_chat_photo', 'group_chat_created',
-#'supergroup_chat_created', 'channel_chat_created', 'migrate_to_chat_id', 'migrate_from_chat_id', 'pinned_message',
-#'proximity_alert_triggered', 'video_chat_scheduled', 'video_chat_started', 'video_chat_ended',
-#'video_chat_participants_invited', 'message_auto_delete_timer_changed'
-# this handler deletes service messages
+            try:
+                link = v.a['href']
+                site = requests.get(link, headers=hesders)
+                soup = BeautifulSoup(site.content, 'html.parser')
+                magnet2 = soup.find_all('div', id='div_video',)
+                for j in magnet2[0]:
+                    try:
+                        link2 = j.video['data-video-src']
+                    except:
+                        pass
 
-@bot.message_handler(content_types=util.content_type_service)
-def delall(message: types.Message):
-    bot.delete_message(message.chat.id,message.message_id)
-bot.infinity_polling(allowed_updates=util.update_types)
+                tratar_link = requests.get(link2)
+                links = str(tratar_link.text)
+                inicio = links.find('http', 150)
+                fim = links.find('label', inicio)
+
+                link3 = links[inicio:fim - 3].replace('\/', '/')
+                print(link3)
+
+                imagem = v.img['data-src']
+                print(imagem)
+                botao = quick_markup({
+
+                    'ASSISTIR | BAIXAR': {'url': link3},
+
+                }, row_width=2)
+                lista2.append(botao)
+                lista2.append(imagem)
+                lista2.append(f'{nome + episodio}')
+                lista.append(lista2)
+                print(nome)
+            except:
+                    pass
+        else:
+
+            print('>> JA FOI ENVIADO !!')
